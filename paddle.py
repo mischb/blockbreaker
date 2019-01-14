@@ -11,7 +11,7 @@ class Paddle(pg.sprite.Sprite):
     pg.draw.line(self.image, self.color, (10, 10), (30, 40))
 
     self.rect = self.image.get_rect()
-
+    self.mask = pg.mask.from_surface(self.image)
   def move_left(self):
     self.rect.x -= 10
   

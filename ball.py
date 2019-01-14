@@ -9,7 +9,8 @@ class Ball(pg.sprite.Sprite):
     self.rect = self.image.get_rect()
     self.rect.x = startPosition[0]
     self.rect.y = startPosition[1]
-
+    self.mask = pg.mask.from_surface(self.image)
+    
   def moveBallOnPaddle(self, position):
     self.rect.x = position[0]
     self.rect.y = position[1]
@@ -22,12 +23,3 @@ class Ball(pg.sprite.Sprite):
     (angle,z) = vector
     (dx,dy) = (z*math.cos(angle),z*math.sin(angle))
     return rect.move(dx,dy)
-
-
-  '''
-    middle/270: 4.71239
-
-    left end: 3.5
-    
-    right end: 5.92478
-    '''
