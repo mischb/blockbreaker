@@ -28,11 +28,11 @@ paddle.rect.x = 20
 paddle.rect.y = display_height - 45
 paddle_group.add(paddle)
 
-speed = 10
+baseSpeed = 5
 ball_group = pg.sprite.GroupSingle()
 ball = Ball(paddle.rect)
 ball_group.add(ball)
-
+degrees_offset = 0.242478 
 dirty_rects = []
 
 def isAtBoundary(rect):
@@ -48,7 +48,8 @@ def getAngleFromPaddle(xIntersection):
     return 3.5
   else:
     rounded = round(xIntersection/10)
-    return 3.5 + (rounded * 0.242478)
+    speed = baseSpeed + abs(baseSpeed - rounded)
+    return ((3.5 + (rounded * degrees_offset)), (speed))
 
 def getAngle(currentAngle,rectY):
   if rectY <= 0:
@@ -58,7 +59,8 @@ def getAngle(currentAngle,rectY):
   else:
     newAngle = math.pi - currentAngle
   return newAngle
-  
+
+speed = baseSpeed
 def game_loop():
   gameDisplay.fill(pink)
   pg.display.update()
@@ -96,7 +98,7 @@ def game_loop():
       # x coordiante of ball - paddle.x will give us where ball hit 
       # determine angle based on where ball hit
       x_offset = (ball.rect.x + 10 - paddle.rect.x)
-      angle = getAngleFromPaddle(x_offset)
+      (angle, speed) = getAngleFromPaddle(x_offset)
 
     paddle_group.draw(gameDisplay)
     if ballOnPaddle:
