@@ -3,7 +3,8 @@ import pygame as pg
 import random
 import math
 from paddle import Paddle
-from ball import Ball 
+from ball import Ball
+from blocks import Block
 
 
 pg.init()
@@ -12,9 +13,9 @@ display_width = 600
 display_height = 500
 
 # color definitionsa
-black = (0,0,0)
-white = (255,255,255)
-red = (255,0,0)
+black = (0, 0, 0)
+white = (255, 255, 255)
+red = (255, 0, 0)
 pink = (173, 145, 160)
 
 gameDisplay = pg.display.set_mode((display_width, display_height))
@@ -32,100 +33,127 @@ baseSpeed = 5
 ball_group = pg.sprite.GroupSingle()
 ball = Ball(paddle.rect)
 ball_group.add(ball)
-degrees_offset = 0.242478 
+degrees_offset = 0.242478
 dirty_rects = []
 
+# color, length, height, position, width
+block_group = pg.sprite.Group()
+blocks = 10
+x = 50
+y = 100
+
+while blocks > 0:
+    new_block = Block(black, 30, 10)
+    new_block.rect.x = x
+    new_block.rect.y = y
+    block_group.add(new_block)
+    x += 32
+    blocks -= 1
+print(block_group)
+
+
 def isAtBoundary(rect):
-  if rect.x + rect.size[0] >= display_width:
-    return True
-  elif rect.x <= 0 or rect.y <= 0:
-    return True
-  else:
-    return False
+    if rect.x + rect.size[0] >= display_width:
+        return True
+    elif rect.x <= 0 or rect.y <= 0:
+        return True
+    else:
+        return False
+
 
 def getAngleFromPaddle(xIntersection):
-  if xIntersection < 10:
-    return 3.5
-  else:
-    rounded = round(xIntersection/10)
-    speed = baseSpeed + abs(baseSpeed - rounded)
+    if xIntersection < 10:
+        speed = baseSpeed + 5
+        return (3.5, speed)
+    else:
+        rounded = round(xIntersection/10)
+        speed = baseSpeed + abs(baseSpeed - rounded)
     return ((3.5 + (rounded * degrees_offset)), (speed))
 
-def getAngle(currentAngle,rectY):
-  if rectY <= 0:
-    newAngle = math.pi - abs(math.pi - currentAngle)
-  elif math.pi - currentAngle < 0:
-    newAngle = (2*math.pi) + (math.pi - currentAngle )
-  else:
-    newAngle = math.pi - currentAngle
-  return newAngle
+
+def getAngle(currentAngle, rectY):
+    if rectY <= 0:
+        newAngle = math.pi - abs(math.pi - currentAngle)
+    elif math.pi - currentAngle < 0:
+        newAngle = (2*math.pi) + (math.pi - currentAngle)
+    else:
+        newAngle = math.pi - currentAngle
+    return newAngle
+
 
 speed = baseSpeed
+
+
 def game_loop():
-  gameDisplay.fill(pink)
-  pg.display.update()
-  gameExit= False
-  ballOnPaddle = True
-  lastBallPosition = [(0,0), (ball.rect.x, ball.rect.y)]
-  while not gameExit:
-    lastBallPosition.pop(0)
-    lastBallPosition.append((ball.rect.x, ball.rect.y))
-    for event in pg.event.get():
-      if event.type == pg.QUIT: 
-        gameExit = True
-      elif event.type == pg.KEYDOWN:
-        if event.key == pg.K_ESCAPE:
-          gameExit = True
+    gameDisplay.fill(pink)
+    pg.display.update()
+    gameExit = False
+    ballOnPaddle = True
+    lastBallPosition = [(0, 0), (ball.rect.x, ball.rect.y)]
+    block_group.draw(gameDisplay)
+    while not gameExit:
+        ballOnPaddlePosition = (paddle.rect[0] + 48, paddle.rect[1] - 18)
+        lastBallPosition.pop(0)
+        lastBallPosition.append((ball.rect.x, ball.rect.y))
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                gameExit = True
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    gameExit = True
 
-        if event.key == pg.K_SPACE:
-          ballOnPaddle = False
+                if event.key == pg.K_SPACE:
+                    ballOnPaddle = False
 
-    # move paddle
-    keys = pg.key.get_pressed()
-    if  keys[pg.K_LEFT] or keys[pg.K_RIGHT]:
-      currentPaddleLoc = paddle.rect
-      pg.draw.rect(gameDisplay, pink, currentPaddleLoc)
-      dirty_rects.append(currentPaddleLoc)
-      if keys[pg.K_LEFT] and paddle.rect[0] > 0:
-        paddle.move_left()
-      if keys[pg.K_RIGHT] and paddle.rect[0] < (display_width-100):
-        paddle.move_right()
+        # move paddle
+        keys = pg.key.get_pressed()
+        if keys[pg.K_LEFT] or keys[pg.K_RIGHT]:
+            currentPaddleLoc = paddle.rect
+            pg.draw.rect(gameDisplay, pink, currentPaddleLoc)
+            dirty_rects.append(currentPaddleLoc)
+            if keys[pg.K_LEFT] and paddle.rect[0] > 0:
+                paddle.move_left()
+            if keys[pg.K_RIGHT] and paddle.rect[0] < (display_width-100):
+                paddle.move_right()
 
-    pg.draw.rect(gameDisplay, pink, ball.rect)
-    overlapped = pg.sprite.spritecollide(ball, paddle_group, False)
-    if overlapped:
-      # get x coordinate of ball --> 
-      # x coordiante of ball - paddle.x will give us where ball hit 
-      # determine angle based on where ball hit
-      x_offset = (ball.rect.x + 10 - paddle.rect.x)
-      (angle, speed) = getAngleFromPaddle(x_offset)
+        pg.draw.rect(gameDisplay, pink, ball.rect)
+        overlapped = pg.sprite.spritecollide(ball, paddle_group, False)
+        if overlapped:
+            x_offset = (ball.rect.x + 10 - paddle.rect.x)
+            (angle, speed) = getAngleFromPaddle(x_offset)
+        paddle_group.draw(gameDisplay)
 
-    paddle_group.draw(gameDisplay)
-    if ballOnPaddle:
-      ball.moveBallOnPaddle((paddle.rect[0] + 48, paddle.rect[1] - 18))
-    else:
-      ball.update((angle, speed))
-  
-    if isAtBoundary(ball.rect):
-      # angle = getAngle(lastBallPosition, [ball.rect.x, ball.rect.y])
-      angle = getAngle(angle, ball.rect.y)
+        if ballOnPaddle:
+            ball.moveBallOnPaddle(ballOnPaddlePosition)
+        elif ball.rect.y > display_height:
+            ballOnPaddle = True
+            ball.moveBallOnPaddle(ballOnPaddlePosition)
+        else:
+            ball.update((angle, speed))
+
+        if isAtBoundary(ball.rect):
+            angle = getAngle(angle, ball.rect.y)
+
+        # logic for removing block from screen
+        hitBlock = pg.sprite.spritecollide(ball, block_group, True)
+        if hitBlock:
+            # draw over sprite ? get location of sprite
+            for block in hitBlock:
+                pg.draw.rect(gameDisplay, pink, block.rect)
+                # --> draw pink over rect
+
+        ball_group.draw(gameDisplay)
+
+        dirty_rects.append(paddle.rect)
+        dirty_rects.append(ball.rect)
+
+        pg.display.update(dirty_rects)
+
+        # paddle_sprite_group.update()
+
+        clock.tick(60)
 
 
-   
-    # print(x_offset, y_offset)
-   
-    # collided = pg.sprite.spritecollide(paddle, ball_group, False)
-    ball_group.draw(gameDisplay)
-
-    dirty_rects.append(paddle.rect) 
-    dirty_rects.append(ball.rect) 
-
-    pg.display.update(dirty_rects)
-
-    # paddle_sprite_group.update()
-  
-    
-    clock.tick(60)
 game_loop()
 pg.quit()
 quit()
