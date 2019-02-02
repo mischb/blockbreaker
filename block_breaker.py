@@ -38,18 +38,17 @@ dirty_rects = []
 
 # color, length, height, position, width
 block_group = pg.sprite.Group()
-blocks = 10
-x = 50
+blocks = 20
+x = 0
 y = 100
 
-while blocks > 0:
-    new_block = Block(black, 30, 10)
-    new_block.rect.x = x
-    new_block.rect.y = y
-    block_group.add(new_block)
-    x += 32
-    blocks -= 1
-print(block_group)
+# while blocks > 0:
+#     new_block = Block(black, 20, 10)
+#     new_block.rect.x = x
+#     new_block.rect.y = y
+#     block_group.add(new_block)
+#     x += 32
+#     blocks -= 1
 
 
 def isAtBoundary(rect):
@@ -71,9 +70,49 @@ def getAngleFromPaddle(xIntersection):
     return ((3.5 + (rounded * degrees_offset)), (speed))
 
 
+# if d+l (radian = 270° × π/180 )
+""" 
+'360' = 2*math.pi
+'270' = math.pi + (math.pi/2)
+'180' = math.pi
+ '90' = math.pi/2
+
+
+if currentAngle > '270':
+    if collision === right:
+        newAngle = '270' - (currentAngle-270)
+    elif(collision === bottom):
+        newAngle = 360 - currentAngle
+if currentAngle < 90 and currentAngle < 180:
+    if rect.x <= 0:
+        90 - (currentAngle - 90)
+    elif rect.y <= 0:º
+        newAngle 360-currentAngle
+if 270 < currentAngle and currentAngle < 180:
+    if collision === right:
+            newAngle = 180 + (360 - angle)
+    if collision === top
+        newAngle = 360-(angle)
+if 90>currentAngle:
+    if collision == left:
+        newAngle = 180+ (360-angle)
+    else:
+        newAngle = 180-(angle)
+
+ """
+
+'360' = 2*math.pi
+'270' = math.pi + (math.pi/2)
+'180' = math.pi
+'90' = math.pi/2
+
+
 def getAngle(currentAngle, rectY):
     if rectY <= 0:
+        print(currentAngle)
         newAngle = math.pi - abs(math.pi - currentAngle)
+        # newAngle = currentAngle *-1
+        print(newAngle)
     elif math.pi - currentAngle < 0:
         newAngle = (2*math.pi) + (math.pi - currentAngle)
     else:
@@ -132,14 +171,18 @@ def game_loop():
             ball.update((angle, speed))
 
         if isAtBoundary(ball.rect):
+
             angle = getAngle(angle, ball.rect.y)
 
         # logic for removing block from screen
         hitBlock = pg.sprite.spritecollide(ball, block_group, True)
         if hitBlock:
+
+            angle = getAngle(angle, 0)
             # draw over sprite ? get location of sprite
             for block in hitBlock:
                 pg.draw.rect(gameDisplay, pink, block.rect)
+
                 # --> draw pink over rect
 
         ball_group.draw(gameDisplay)
