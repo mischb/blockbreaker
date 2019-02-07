@@ -42,13 +42,13 @@ blocks = 20
 x = 0
 y = 100
 
-# while blocks > 0:
-#     new_block = Block(black, 20, 10)
-#     new_block.rect.x = x
-#     new_block.rect.y = y
-#     block_group.add(new_block)
-#     x += 32
-#     blocks -= 1
+while blocks > 0:
+    new_block = Block(black, 20, 10)
+    new_block.rect.x = x
+    new_block.rect.y = y
+    block_group.add(new_block)
+    x += 32
+    blocks -= 1
 
 
 def isAtBoundary(rect):
@@ -71,7 +71,7 @@ def getAngleFromPaddle(xIntersection):
 
 
 # if d+l (radian = 270° × π/180 )
-""" 
+"""
 '360' = 2*math.pi
 '270' = math.pi + (math.pi/2)
 '180' = math.pi
@@ -101,13 +101,49 @@ if 90>currentAngle:
 
  """
 
-'360' = 2*math.pi
-'270' = math.pi + (math.pi/2)
-'180' = math.pi
-'90' = math.pi/2
+
+threeSixty = 2*math.pi
+twoSeventy = math.pi + (math.pi/2)
+oneEighty = math.pi
+ninety = math.pi/2
 
 
-def getAngle(currentAngle, rectY):
+def r2D(radian):
+    return radian * 180/math.pi
+
+
+def getAngle(currentAngle, ball):
+    offset = 20
+
+    # up and right
+    if currentAngle > twoSeventy:
+        if ball.x + offset >= display_width:
+            return twoSeventy - (currentAngle-twoSeventy)
+        else:
+            return threeSixty - currentAngle
+    # down and left
+    if currentAngle > ninety and currentAngle < oneEighty:
+        # hit left side
+        if ball.x - offset <= 0:
+            return ninety - (currentAngle - ninety)
+            # return oneEighty + currentAngle
+        # hit top
+        # else ballY <= 0:
+        else:
+            return threeSixty-currentAngle
+    if currentAngle < twoSeventy and currentAngle > oneEighty:
+        if ball.x - offset <= 0:
+            return oneEighty + (threeSixty - currentAngle)
+        else:
+            return threeSixty - currentAngle
+    else:
+        if ball.x + offset >= display_width:
+            return oneEighty + (threeSixty - currentAngle)
+        else:
+            return oneEighty - currentAngle
+
+
+def getAngle1(currentAngle, rectY):
     if rectY <= 0:
         print(currentAngle)
         newAngle = math.pi - abs(math.pi - currentAngle)
@@ -171,14 +207,13 @@ def game_loop():
             ball.update((angle, speed))
 
         if isAtBoundary(ball.rect):
-
-            angle = getAngle(angle, ball.rect.y)
+            # angle = getAngle(angle, ball.rect.y)
+            angle = getAngle(angle, ball.rect)
 
         # logic for removing block from screen
         hitBlock = pg.sprite.spritecollide(ball, block_group, True)
         if hitBlock:
-
-            angle = getAngle(angle, 0)
+            angle = getAngle(angle, ball.rect)
             # draw over sprite ? get location of sprite
             for block in hitBlock:
                 pg.draw.rect(gameDisplay, pink, block.rect)
