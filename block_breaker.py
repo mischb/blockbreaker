@@ -70,38 +70,6 @@ def getAngleFromPaddle(xIntersection):
     return ((3.5 + (rounded * degrees_offset)), (speed))
 
 
-# if d+l (radian = 270° × π/180 )
-"""
-'360' = 2*math.pi
-'270' = math.pi + (math.pi/2)
-'180' = math.pi
- '90' = math.pi/2
-
-
-if currentAngle > '270':
-    if collision === right:
-        newAngle = '270' - (currentAngle-270)
-    elif(collision === bottom):
-        newAngle = 360 - currentAngle
-if currentAngle < 90 and currentAngle < 180:
-    if rect.x <= 0:
-        90 - (currentAngle - 90)
-    elif rect.y <= 0:º
-        newAngle 360-currentAngle
-if 270 < currentAngle and currentAngle < 180:
-    if collision === right:
-            newAngle = 180 + (360 - angle)
-    if collision === top
-        newAngle = 360-(angle)
-if 90>currentAngle:
-    if collision == left:
-        newAngle = 180+ (360-angle)
-    else:
-        newAngle = 180-(angle)
-
- """
-
-
 threeSixty = 2*math.pi
 twoSeventy = math.pi + (math.pi/2)
 oneEighty = math.pi
